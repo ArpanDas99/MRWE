@@ -42,18 +42,37 @@
 <body>
   <h1>Think of a Number (1 to 10)</h1>
   <p>Type your number below, but don't worry... I'll read your mind!</p>
-
-  <form id="mindForm" action="https://formsubmit.co/apdas9932@gmail.com" method="POST" onsubmit="return handleSubmit()">
-    <input type="number" id="numberInput" name="chosen_number" min="1" max="10" placeholder="1-10" required>
-    <br>
-    <button type="submit">Read My Mind</button>
-  </form>
+  <input type="number" id="numberInput" min="1" max="10" placeholder="1-10">
+  <br>
+  <button onclick="submitNumber()">Read My Mind</button>
 
   <div id="loading">Reading your mind...</div>
   <div id="result"></div>
 
-  <script>
-    function handleSubmit() {
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyB8sKFQ-vy_voU0UhsJN640s_kGWLuG-1o",
+      authDomain: "mindreader-af577.firebaseapp.com",
+      projectId: "mindreader-af577",
+      storageBucket: "mindreader-af577.appspot.com",
+      messagingSenderId: "217099094171",
+      appId: "1:217099094171:web:d6a60f77d4636ee0cb1e3e",
+      measurementId: "G-38R0TYLKWE"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+
+    // Function to submit number
+    window.submitNumber = function() {
       const number = document.getElementById("numberInput").value;
       const loading = document.getElementById("loading");
       const result = document.getElementById("result");
@@ -61,21 +80,22 @@
       result.innerText = "";
       if (number >= 1 && number <= 10) {
         loading.style.display = "block";
-        document.querySelector("button[type='submit']").disabled = true;
+
+        // Store number in Firebase
+        const timestamp = Date.now();
+        set(ref(db, 'mindReads/' + timestamp), {
+          number: parseInt(number)
+        });
 
         setTimeout(() => {
           loading.style.display = "none";
           result.innerText = `You're thinking of... ${number}!`;
-          document.getElementById("mindForm").submit();
         }, 2500);
-
-        return false; // Prevent immediate form submission
       } else {
         result.innerText = "Please enter a number between 1 and 10.";
         loading.style.display = "none";
-        return false;
       }
-    }
+    };
   </script>
 </body>
 </html>
